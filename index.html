@@ -2,23 +2,23 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emile Souro Kamano – Mes activités</title>
 <meta name="description" content="Activités, projets et engagements d’Emile Souro Kamano.">
 <meta property="og:title" content="Emile Souro Kamano – Mes activités">
 <meta property="og:type" content="website">
 <style>
-:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e4e0d6;--acc:#1f6f5c;--acc-ink:#fff;--chip:#ece8dd;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c212b;--ink:#eceff4;--mute:#9aa4b5;--line:#2c3340;--acc:#4fb89e;--acc-ink:#0c1512;--chip:#262d39;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#14171d;--card:#1c212b;--ink:#eceff4;--mute:#9aa4b5;--line:#2c3340;--acc:#4fb89e;--acc-ink:#0c1512;--chip:#262d39;color-scheme:dark}
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e4e0d6;--acc:#1f6f5c;--acc-ink:#fff;--chip:#ece8dd}
+@media (prefers-color-scheme:dark){:root{--bg:#14171d;--card:#1c212b;--ink:#eceff4;--mute:#9aa4b5;--line:#2c3340;--acc:#4fb89e;--acc-ink:#0c1512;--chip:#262d39;color-scheme:dark}}
 *{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:720px;margin:0 auto;padding:32px 18px 64px}
-h1{font:700 2rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 6px}
-.sub{color:var(--mute);margin:0 0 24px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+header,main,footer{max-width:720px;margin:0 auto;padding:0 18px}
+header{padding-top:40px;padding-bottom:8px}
+h1{font:700 2.1rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bio{margin:0 0 20px;white-space:pre-wrap}
+.contact{display:inline-block;margin-bottom:20px;color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 22px}
 .chip{border:0;background:var(--chip);color:var(--ink);padding:7px 14px;border-radius:999px;font:inherit;font-size:.9rem;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
@@ -27,99 +27,61 @@ h1{font:700 2rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 6px}
 .card h2{font-size:1.1rem;margin:0 0 4px}
 .card p{margin:0;white-space:pre-wrap}
 .card a{color:var(--acc);display:inline-block;margin-top:8px}
-.del{margin-left:auto;border:0;background:none;color:var(--mute);cursor:pointer;font:inherit;font-size:.82rem}
 .empty{color:var(--mute);text-align:center;padding:36px 0}
-form{background:var(--card);border:1px dashed var(--acc);border-radius:14px;padding:16px 18px;margin-bottom:26px;display:grid;gap:10px}
-form h3{margin:0;font-size:1rem}
-label{display:grid;gap:4px;font-size:.85rem;color:var(--mute)}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
-textarea{min-height:84px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:480px){.row{grid-template-columns:1fr}}
-.btn{border:0;background:var(--acc);color:var(--acc-ink);padding:10px 16px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
-.btn:disabled{opacity:.6}
-#msg{font-size:.85rem;color:var(--mute);min-height:1.2em}
+footer{padding-top:24px;padding-bottom:40px;color:var(--mute);font-size:.85rem}
 </style>
 </head>
 <body>
-<main id="app"></main>
-<script type="application/json" id="data">{"title":"Emile Souro Kamano","subtitle":"Mes activités : études, projets et engagements","items":[]}</script>
+<header>
+<h1 id="nom">Emile Souro Kamano</h1>
+<p class="sub" id="sub">Mes activités : études, projets et engagements</p>
+<p class="bio" id="bio" hidden></p>
+<a class="contact" id="contact" hidden></a>
+</header>
+<main>
+<div class="chips" id="chips"></div>
+<div id="list"><div class="empty">Chargement…</div></div>
+</main>
+<footer id="foot"></footer>
 <script>
-const CATS=["Études","Projets data","Associatif","Autre"];
-let state=JSON.parse(document.getElementById("data").textContent);
-let filter="Toutes",canEdit=false,msg="";
-
-function el(tag,props,...kids){const e=document.createElement(tag);
-  for(const k in (props||{})){if(k==="class")e.className=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}
-  kids.forEach(c=>{if(c!=null)e.append(c)});return e;}
-function fmt(d){if(!d)return"";const x=new Date(d+"T00:00:00");return isNaN(x)?d:x.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});}
-function safeUrl(u){try{const x=new URL(u);return(x.protocol==="http:"||x.protocol==="https:")?x.href:"";}catch(e){return"";}}
-
-async function persist(){
-  try{
-    const art=window.claude&&await claude.use("artifact");
-    if(!art){msg="Publication indisponible pour le moment.";return render();}
-    const clone=document.documentElement.cloneNode(true);
-    clone.querySelector("#data").textContent=JSON.stringify(state).replace(/</g,"\\u003c");
-    clone.querySelector("#app").innerHTML="";
-    await art.publish("<!doctype html>\n"+clone.outerHTML);
-  }catch(e){
-    if(e&&e.code==="conflict")return;
-    msg="La publication a échoué. Réessayez.";render();
-  }
-}
-
-function addItem(f){
-  const title=f.title.value.trim();
-  if(!title){msg="Donnez un titre à l’activité.";return render();}
-  state.items.push({id:Date.now().toString(36),title,cat:f.cat.value,date:f.date.value,desc:f.desc.value.trim(),url:safeUrl(f.url.value.trim())});
-  state.items.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-  msg="Publication en cours…";render();persist();
-}
-function delItem(id){
-  if(!confirm("Supprimer cette activité ?"))return;
-  state.items=state.items.filter(i=>i.id!==id);msg="Publication en cours…";render();persist();
-}
-
+var $=function(id){return document.getElementById(id)};
+var items=[],filter="Toutes";
+function safeUrl(u){try{var x=new URL(u);return(x.protocol==="http:"||x.protocol==="https:")?x.href:""}catch(e){return""}}
+function fmt(d){if(!d)return"";var x=new Date(d+"T00:00:00");return isNaN(x)?d:x.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}
+function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e}
 function render(){
-  const app=document.getElementById("app");app.innerHTML="";
-  app.append(el("h1",null,state.title),el("p",{class:"sub"},state.subtitle));
-
-  if(canEdit){
-    const f=el("form",null,
-      el("h3",null,"Ajouter une activité"),
-      el("label",null,"Titre",el("input",{name:"title",maxlength:"120"})),
-      el("div",{class:"row"},
-        el("label",null,"Catégorie",(()=>{const s=el("select",{name:"cat"});CATS.forEach(c=>s.append(el("option",null,c)));return s;})()),
-        el("label",null,"Date",el("input",{name:"date",type:"date"}))),
-      el("label",null,"Description",el("textarea",{name:"desc",maxlength:"1500"})),
-      el("label",null,"Lien (facultatif)",el("input",{name:"url",type:"url",placeholder:"https://"})),
-      el("button",{class:"btn",type:"submit"},"Publier"),
-      el("div",{id:"msg"},msg));
-    f.addEventListener("submit",e=>{e.preventDefault();addItem(f);});
-    app.append(f);
-  }
-
-  const chips=el("div",{class:"chips"});
-  ["Toutes",...CATS].forEach(c=>chips.append(el("button",{class:"chip",type:"button","aria-pressed":String(c===filter),onclick:()=>{filter=c;render();}},c)));
-  app.append(chips);
-
-  const items=state.items.filter(i=>filter==="Toutes"||i.cat===filter);
-  if(!items.length)app.append(el("div",{class:"empty"},state.items.length?"Aucune activité dans cette catégorie.":"Aucune activité publiée pour l’instant."));
-  items.forEach(i=>{
-    const meta=el("div",{class:"meta"},el("span",{class:"tag"},i.cat),i.date?el("span",null,fmt(i.date)):null);
-    if(canEdit)meta.append(el("button",{class:"del",type:"button",onclick:()=>delItem(i.id)},"Supprimer"));
-    const card=el("article",{class:"card"},meta,el("h2",null,i.title),i.desc?el("p",null,i.desc):null);
-    if(i.url)card.append(el("a",{href:i.url,target:"_blank",rel:"noopener noreferrer"},"Voir le lien"));
-    app.append(card);
-  });
+  var chips=$("chips");chips.innerHTML="";
+  var cats=["Toutes"];items.forEach(function(i){if(i.categorie&&cats.indexOf(i.categorie)<0)cats.push(i.categorie)});
+  if(cats.length>2)cats.forEach(function(c){
+    var b=el("button","chip",c);b.type="button";b.setAttribute("aria-pressed",String(c===filter));
+    b.onclick=function(){filter=c;render()};chips.append(b)});
+  var list=$("list");list.innerHTML="";
+  var shown=items.filter(function(i){return filter==="Toutes"||i.categorie===filter});
+  if(!shown.length){list.append(el("div","empty",items.length?"Aucune activité dans cette catégorie.":"Aucune activité publiée pour l’instant."));return}
+  shown.forEach(function(i){
+    var card=el("article","card"),meta=el("div","meta");
+    if(i.categorie)meta.append(el("span","tag",i.categorie));
+    if(i.date)meta.append(el("span",null,fmt(i.date)));
+    card.append(meta,el("h2",null,i.titre||""));
+    if(i.description)card.append(el("p",null,i.description));
+    var u=safeUrl(i.lien||"");
+    if(u){var a=el("a",null,"Voir le lien");a.href=u;a.target="_blank";a.rel="noopener noreferrer";card.append(a)}
+    list.append(card)});
 }
-
-render();
-(async()=>{
-  try{const u=window.claude&&await claude.use("user");canEdit=!!(u&&u.canEdit());}catch(e){canEdit=false;}
-  if(canEdit)render();
-})();
+function init(d){
+  if(d.nom)$("nom").textContent=d.nom;
+  if(d.sous_titre)$("sub").textContent=d.sous_titre;
+  if(d.presentation){$("bio").textContent=d.presentation;$("bio").hidden=false}
+  if(d.contact){var c=$("contact"),t=d.contact;
+    if(t.indexOf("@")>0&&t.indexOf("/")<0){c.href="mailto:"+t;c.textContent="Me contacter : "+t}
+    else{var u=safeUrl(t);if(u){c.href=u;c.textContent="Me contacter"}}
+    c.hidden=!c.href}
+  $("foot").textContent="© "+new Date().getFullYear()+" "+(d.nom||"");
+  items=(d.activites||[]).slice().sort(function(a,b){return(b.date||"").localeCompare(a.date||"")});
+  render();
+}
+fetch("activites.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(init)
+.catch(function(){$("list").innerHTML="";$("list").append(el("div","empty","Impossible de charger les activités pour le moment."))});
 </script>
 </body>
 </html>

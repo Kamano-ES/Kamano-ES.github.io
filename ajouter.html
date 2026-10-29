@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ajouter une activité</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e4e0d6;--acc:#1f6f5c;--acc-ink:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#14171d;--card:#1c212b;--ink:#eceff4;--mute:#9aa4b5;--line:#2c3340;--acc:#4fb89e;--acc-ink:#0c1512;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 18px 64px}
+h1{font:700 1.7rem/1.2 Georgia,serif;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0;display:grid;gap:10px}
+label{display:grid;gap:4px;font-size:.9rem;color:var(--mute)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+textarea{min-height:90px;resize:vertical}
+.out{min-height:200px;font:13px/1.4 ui-monospace,Consolas,monospace}
+.btn{border:0;background:var(--acc);color:var(--acc-ink);padding:10px 16px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+ol{padding-left:20px;margin:0}
+.note{color:var(--mute);font-size:.9rem}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<main>
+<h1>Ajouter une activité</h1>
+<p class="note">Remplissez le formulaire, puis suivez les 3 étapes qui s’affichent. <a href="index.html">Retour au site</a></p>
+<div class="card" id="f">
+<label>Titre<input id="titre" maxlength="120"></label>
+<label>Catégorie<select id="cat"><option>Études</option><option>Projets data</option><option>Associatif</option><option>Autre</option></select></label>
+<label>Date<input id="date" type="date"></label>
+<label>Description<textarea id="desc" maxlength="1500"></textarea></label>
+<label>Lien (facultatif)<input id="lien" type="url" placeholder="https://"></label>
+<button class="btn" id="go" type="button">Préparer la publication</button>
+<div class="note" id="msg"></div>
+</div>
+<div class="card" id="res" hidden>
+<ol>
+<li>Cliquez sur « Copier le texte » ci-dessous.</li>
+<li>Cliquez sur « Ouvrir l’éditeur GitHub ». Dans la zone de texte, faites Ctrl+A puis Ctrl+V pour remplacer tout le contenu.</li>
+<li>Cliquez sur « Commit changes… » en haut à droite, puis sur « Commit changes » dans la fenêtre. Votre site se met à jour en 1 à 2 minutes.</li>
+</ol>
+<textarea class="out" id="out" readonly></textarea>
+<button class="btn" id="copy" type="button">Copier le texte</button>
+<a class="btn" id="gh" target="_blank" rel="noopener" href="https://github.com/Kamano-ES/Kamano-ES.github.io/edit/main/activites.json">Ouvrir l’éditeur GitHub</a>
+</div>
+</main>
+<script>
+var $=function(id){return document.getElementById(id)};
+function safeUrl(u){try{var x=new URL(u);return(x.protocol==="http:"||x.protocol==="https:")?x.href:""}catch(e){return""}}
+$("go").onclick=function(){
+  var t=$("titre").value.trim();
+  if(!t){$("msg").textContent="Donnez un titre à l’activité.";return}
+  $("msg").textContent="Préparation…";
+  fetch("activites.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+    d.activites=d.activites||[];
+    var a={titre:t,categorie:$("cat").value,date:$("date").value,description:$("desc").value.trim()};
+    var u=safeUrl($("lien").value.trim());if(u)a.lien=u;
+    d.activites.push(a);
+    $("out").value=JSON.stringify(d,null,2)+"\n";
+    $("res").hidden=false;$("msg").textContent="Prêt. Suivez les 3 étapes ci-dessous.";
+    $("res").scrollIntoView({behavior:"smooth"});
+  }).catch(function(){$("msg").textContent="Impossible de lire activites.json. Ouvrez cette page depuis votre site en ligne."});
+};
+$("copy").onclick=function(){
+  var o=$("out");o.select();
+  (navigator.clipboard?navigator.clipboard.writeText(o.value):Promise.reject()).then(function(){$("copy").textContent="Copié ✔"})
+  .catch(function(){document.execCommand("copy");$("copy").textContent="Copié ✔"});
+};
+</script>
+</body>
+</html>
