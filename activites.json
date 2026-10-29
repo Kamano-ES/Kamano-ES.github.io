@@ -3,5 +3,12 @@
   "sous_titre": "Mes activités : études, projets et engagements",
   "presentation": "",
   "contact": "",
-  "activites": []
+  "activites": [
+    {
+      "titre": "ANALYSE DES DONNEES",
+      "categorie": "Études",
+      "date": "2026-10-29",
+      "description": "Espace centralisant l'ensemble de mes activités professionnelles, travaux d'analyse de données, modélisation et engagements administratifs."
+    }
+  ]
 }
